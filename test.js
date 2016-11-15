@@ -374,6 +374,7 @@ describe('score.dom.form', function() {
                         expect(select.getValue()).to.be("3");
                         select.node.children().attr('selected', null);
                         select.node.children().first.attr('selected', 'selected');
+                        select.node.DOMNode.value = "1";
                         expect(select.getValue()).to.be("1");
                         done();
                     } catch (e) {
@@ -385,6 +386,28 @@ describe('score.dom.form', function() {
         });
 
         describe('#setValue()', function() {
+
+            it('should be able to handle weird option values', function(done) {
+                loadScore(['oop', 'dom', 'dom.form'], function(score) {
+                    try {
+                        var selectNode = score.dom.fromString(
+                            '<select>' +
+                            '    <option value="1">1</option>' +
+                            '    <option value="][\'blah">weird</option>' +
+                            '    <option value=\'"\'>even weirder</option>' +
+                            '</select>'
+                        );
+                        var select = score.dom.form.field.select(selectNode);
+                        select.setValue("][\'blah");
+                        expect(select.getValue()).to.be("][\'blah");
+                        select.setValue('"');
+                        expect(select.getValue()).to.be('"');
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
 
             it('should not accept invalid values', function(done) {
                 loadScore(['oop', 'dom', 'dom.form'], function(score) {

@@ -176,12 +176,17 @@
             },
 
             _setValue: function(self, value) {
-                self.select.find('option[selected]').attr('selected', null);
-                var option = self.select.find('option[value="' + value + '"]');
-                if (!option.length) {
+                value = '' + value;
+                var found = false;
+                self.select.children('option').forEach(function(option) {
+                    if (option.attr('value') === value) {
+                        found = true;
+                    }
+                });
+                if (!found) {
                     throw new Error('No such value "' + value + '"');
                 }
-                option.attr('selected', 'selected');
+                self.select.DOMNode.value = value;
             }
 
         });

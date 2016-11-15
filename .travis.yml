@@ -1,0 +1,7 @@
+language: node_js
+node_js:
+- 0.10.28
+before_script:
+- npm -g install browserstack-runner
+script:
+- browserstack-runner

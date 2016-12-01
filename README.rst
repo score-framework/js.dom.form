@@ -22,7 +22,7 @@ Very low-level form handling library.
 Quickstart
 ==========
 
-This library ist foremost for providing a uniform API to all form fields:
+This library ist foremost for providing a uniform API across all form fields:
 
 .. code-block:: javascript
 
@@ -157,54 +157,54 @@ a <label>:
 API
 ===
 
-class `score.dom.form(fields)`
+class ``score.dom.form(fields)``
     Wraps multiple fields to provide a single setter/getter for all field
-    values at once. The provided `fields` parameter must be an object mapping
-    field names to `score.dom.form.field` objects.
+    values at once. The provided ``fields`` parameter must be an object mapping
+    field names to ``score.dom.form.field`` objects.
 
-    `getValue()`
+    ``getValue()``
         Get the values of each field of this form. The return value is an
         object mapping each field name to the value of the corresponding field
-        (as defined by `score.dom.form.field.getValue()`)
+        (as defined by ``score.dom.form.field.getValue()``)
 
-    `setValue(value)`
+    ``setValue(value)``
         Sets the values of all managed fields. Note that all field names must
         be present in the provided *value*.
 
 
-class `score.dom.form.field()`
+class ``score.dom.form.field()``
     An abstract Field class providing unifying the value setting/retrieval
     API.
 
-    `getValue()`
+    ``getValue()``
         Get the value of this field.
 
-    `setValue(value)`
+    ``setValue(value)``
         Sets the values of this field and returns this field object.
 
 
-class `score.dom.form.field.input(node)`
+class ``score.dom.form.field.input(node)``
     An <input> field. The optional *node* parameter can be either of the
     following:
 
     * ``undefined`` or ``null``: A new node object will be created by the
       constructor.
-    * a ``score.dom`` object
-    * anything that can be used to create a ``score.dom`` object with (a
+    * a `score.dom` object
+    * anything that can be used to create a `score.dom` object with (a
       selector string, a DOMNode, an HTMLCollection, ...)
 
 
-class `score.dom.form.field.password(node)`
+class ``score.dom.form.field.password(node)``
     A <password> field. The *node* parameter is the same as that for the
     <input> field.
 
 
-class `score.dom.form.field.textarea(node)`
+class ``score.dom.form.field.textarea(node)``
     A <textarea> field. The *node* parameter is the same as that for the
     <input> field.
 
 
-class `score.dom.form.field.select(nodeOrOptions)`
+class ``score.dom.form.field.select(nodeOrOptions)``
     A <select> field. The constructor parameter *nodeOrOptions* must either
     be a node (anything accepted by the constructor of the InputField is fine),
     or a list of key-value tuples. Example:

@@ -146,6 +146,33 @@
 
         });
 
+        Form.field.textarea = score.oop.Class({
+            __name__: 'InputField',
+            __parent__: Form.field,
+
+            __init__: function(self, node) {
+                if (!node) {
+                    node = score.dom.create('textarea');
+                } else {
+                    node = score.dom(node);
+                    if (node.DOMNode.nodeName.toLowerCase() != 'textarea') {
+                        throw new Error('Node argument must be an <textarea> element');
+                    }
+                }
+                self.node = self.textarea = node;
+                self.textarea.on('input', self._input);
+            },
+
+            _getValue: function(self, value) {
+                return self.textarea.DOMNode.value;
+            },
+
+            _setValue: function(self, value) {
+                self.textarea.DOMNode.value = value;
+            }
+
+        });
+
         Form.field.select = score.oop.Class({
             __name__: 'PasswordField',
             __parent__: Form.field,

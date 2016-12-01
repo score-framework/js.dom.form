@@ -308,6 +308,22 @@ describe('score.dom.form', function() {
 
     });
 
+    describe('field.textarea', function() {
+
+        it('should create a <textarea> node', function(done) {
+            loadScore(['oop', 'dom', 'dom.form'], function(score) {
+                try {
+                    var textarea = score.dom.form.field.textarea();
+                    expect(textarea.node.DOMNode.nodeName.toLowerCase()).to.be('textarea');
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
+        });
+
+    });
+
     describe('field.select', function() {
 
         it('should throw an error if invoked without arguments', function(done) {

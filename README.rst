@@ -184,28 +184,28 @@ class ``score.dom.form.field()``
 
 
 class ``score.dom.form.field.input(node)``
-    An <input> field. The optional *node* parameter can be either of the
+    An ``<input>`` field. The optional *node* parameter can be either of the
     following:
 
     * ``undefined`` or ``null``: A new node object will be created by the
       constructor.
     * a `score.dom` object
     * anything that can be used to create a `score.dom` object with (a
-      selector string, a DOMNode, an HTMLCollection, ...)
+      selector string, a ``DOMNode``, an ``HTMLCollection``, ...)
 
 
 class ``score.dom.form.field.password(node)``
-    A <password> field. The *node* parameter is the same as that for the
+    A ``<password>`` field. The *node* parameter is the same as that for the
     <input> field.
 
 
 class ``score.dom.form.field.textarea(node)``
-    A <textarea> field. The *node* parameter is the same as that for the
+    A ``<textarea>`` field. The *node* parameter is the same as that for the
     <input> field.
 
 
 class ``score.dom.form.field.select(nodeOrOptions)``
-    A <select> field. The constructor parameter *nodeOrOptions* must either
+    A ``<select>`` field. The constructor parameter *nodeOrOptions* must either
     be a node (anything accepted by the constructor of the InputField is fine),
     or a list of key-value tuples. Example:
 
@@ -216,8 +216,9 @@ class ``score.dom.form.field.select(nodeOrOptions)``
             [2, 'bar'],
         ])
 
-    Why doesn't the constructor accept objects? Because `obects do not preserve
-    property order in javascript <http://stackoverflow.com/a/5525820/44562>`_.
+    Why doesn't the constructor accept objects? Because `objects do not
+    preserve property order in javascript
+    <http://stackoverflow.com/a/5525820/44562>`_.
 
 
 Acknowledgments

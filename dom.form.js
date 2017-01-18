@@ -222,26 +222,50 @@
             __name__: 'RadioListField',
             __parent__: Form.field,
 
-            __init__: function(self, nodesOrValues) {
+            __init__: function(self, nodesOrValues, name) {
                 if (!nodesOrValues) {
                     throw new Error('First argument must either be a list of <input type="radio"> elements or a list of values');
                 }
+                if (typeof nodesOrValues === 'string') {
+                    var tmp = nodesOrValues;
+                    nodesOrValues = name;
+                    name = tmp;
+                }
                 if (Array.isArray(nodesOrValues) && nodesOrValues.length && typeof nodesOrValues[0] == 'string') {
                     self.nodes = self.radios = score.dom();
+                    if (!name) {
+                        throw new Error('Second argument must contain a name if first argument is a list of values');
+                    }
                     for (var i = 0; i < nodesOrValues.length; i++) {
                         self.nodes.push(
                             score.dom.create('input')
                             .attr('type', 'radio')
+                            .attr('name', name)
                             .attr('value', nodesOrValues[i])
                             .DOMNode);
                     }
                 } else {
                     self.nodes = self.radios = score.dom(nodesOrValues);
-                    self.radios.forEach(function(node) {
-                        if (node.DOMNode.nodeName.toLowerCase() != 'input' || node.attr('type').toLowerCase() != 'radio') {
-                            throw new Error('First argument must either be a list of <input type="radio"> elements or a list of values');
+                    if (self.nodes.length) {
+                        self.radios.forEach(function(node) {
+                            if (node.DOMNode.nodeName.toLowerCase() != 'input' || node.attr('type').toLowerCase() != 'radio') {
+                                throw new Error('First argument must either be a list of <input type="radio"> elements or a list of values');
+                            }
+                        });
+                        var nameAttr = self.nodes.first.attr('name');
+                        if (!nameAttr) {
+                            if (!name) {
+                                throw new Error('Second argument must contain a name if nodes don\'t have a name attribute');
+                            }
+                            self.nodes.attr('name', name);
+                        } else {
+                            self.radios.forEach(function(node) {
+                                if (node.attr('name') != nameAttr) {
+                                    throw new Error('All nodes must have the same name attribute');
+                                }
+                            });
                         }
-                    });
+                    }
                 }
                 self.radios.on('change', self._input);
             },

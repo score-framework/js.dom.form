@@ -494,11 +494,39 @@ describe('score.dom.form', function() {
             });
         });
 
+        it('should reject an array of values without any name', function(done) {
+            loadScore(['oop', 'dom', 'dom.form'], function(score) {
+                try {
+                    var values = ['one', 'two', 'three'];
+                    expect(function() {score.dom.form.field.radios(values);}).to.throwError();
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
+        });
+
         it('should accept an array of values', function(done) {
             loadScore(['oop', 'dom', 'dom.form'], function(score) {
                 try {
                     var values = ['one', 'two', 'three'];
-                    var radios = score.dom.form.field.radios(values);
+                    var radios = score.dom.form.field.radios(values, 'test');
+                    radios.radios.forEach(function(node, index) {
+                        expect(node.DOMNode.nodeName.toLowerCase()).to.be('input');
+                        expect(node.attr('value')).to.be(values[index]);
+                    });
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
+        });
+
+        it('should accept an array of values with reversed parameters', function(done) {
+            loadScore(['oop', 'dom', 'dom.form'], function(score) {
+                try {
+                    var values = ['one', 'two', 'three'];
+                    var radios = score.dom.form.field.radios('test', values);
                     radios.radios.forEach(function(node, index) {
                         expect(node.DOMNode.nodeName.toLowerCase()).to.be('input');
                         expect(node.attr('value')).to.be(values[index]);
@@ -518,7 +546,7 @@ describe('score.dom.form', function() {
                         '<input type="radio" value="two"></input>' +
                         '<input type="radio" value="three"></input>'
                     );
-                    var radios = score.dom.form.field.radios(nodes);
+                    var radios = score.dom.form.field.radios(nodes, 'test');
                     expect(radios.nodes).to.be(nodes);
                     expect(radios.radios).to.be(nodes);
                     done();
@@ -532,7 +560,7 @@ describe('score.dom.form', function() {
             loadScore(['oop', 'dom', 'dom.form'], function(score) {
                 try {
                     var nodes = score.dom.fromString('<input value="one"></input>');
-                    expect(function() {score.dom.form.field.radios(nodes);}).to.throwError();
+                    expect(function() {score.dom.form.field.radios('test', nodes);}).to.throwError();
                     done();
                 } catch (e) {
                     done(e);
@@ -543,14 +571,32 @@ describe('score.dom.form', function() {
         it('should reject an array containing a <input type="non-radio"> field', function(done) {
             loadScore(['oop', 'dom', 'dom.form'], function(score) {
                 try {
-                    var nodes = score.dom.fromString('<input value="one"></input>');
-                    expect(function() {score.dom.form.field.radios(nodes);}).to.throwError();
                     var nodes = score.dom.fromString(
                         '<input type="radio" value="one"></input>' +
                         '<input type="radio" value="two"></input>' +
                         '<input value="three"></input>'
                     );
+                    expect(function() {score.dom.form.field.radios('test', nodes);}).to.throwError();
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
+        });
+
+        it('should reject an array if it contains a node with a different name', function(done) {
+            loadScore(['oop', 'dom', 'dom.form'], function(score) {
+                try {
+                    var string = 
+                        '<input name="test" type="radio" value="one"></input>' +
+                        '<input name="test" type="radio" value="two"></input>' +
+                        '<input name="test2" type="radio" value="three"></input>';
+                    var nodes = score.dom.fromString(string);
                     expect(function() {score.dom.form.field.radios(nodes);}).to.throwError();
+                    // re-run the same test with the correct name to
+                    // make sure this was the cause of the exception.
+                    nodes = score.dom.fromString(string.replace('test2', 'test'));
+                    score.dom.form.field.radios(nodes);
                     done();
                 } catch (e) {
                     done(e);

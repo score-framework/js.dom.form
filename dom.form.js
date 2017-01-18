@@ -218,6 +218,56 @@
 
         });
 
+        Form.field.radios = score.oop.Class({
+            __name__: 'RadioListField',
+            __parent__: Form.field,
+
+            __init__: function(self, nodesOrValues) {
+                if (!nodesOrValues) {
+                    throw new Error('First argument must either be a list of <input type="radio"> elements or a list of values');
+                }
+                if (Array.isArray(nodesOrValues) && nodesOrValues.length && typeof nodesOrValues[0] == 'string') {
+                    self.nodes = self.radios = score.dom();
+                    for (var i = 0; i < nodesOrValues.length; i++) {
+                        self.nodes.push(
+                            score.dom.create('input')
+                            .attr('type', 'radio')
+                            .attr('value', nodesOrValues[i])
+                            .DOMNode);
+                    }
+                } else {
+                    self.nodes = self.radios = score.dom(nodesOrValues);
+                    self.radios.forEach(function(node) {
+                        if (node.DOMNode.nodeName.toLowerCase() != 'input' || node.attr('type').toLowerCase() != 'radio') {
+                            throw new Error('First argument must either be a list of <input type="radio"> elements or a list of values');
+                        }
+                    });
+                }
+                self.radios.on('change', self._input);
+            },
+
+            _getValue: function(self) {
+                for (var i = 0; i < self.radios.length; i++) {
+                    if (self.radios[i].checked) {
+                        return self.radios.get(i).attr('value');
+                    }
+                }
+                return null;
+            },
+
+            _setValue: function(self, value) {
+                value = '' + value;
+                for (var i = 0; i < self.radios.length; i++) {
+                    if (self.radios.get(i).attr('value') == value) {
+                        self.radios.get(i).DOMNode.checked = true;
+                        return;
+                    }
+                }
+                throw new Error('No such value "' + value + '"');
+            }
+
+        });
+
         return Form;
 
     });

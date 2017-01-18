@@ -273,7 +273,7 @@
             _getValue: function(self) {
                 for (var i = 0; i < self.radios.length; i++) {
                     if (self.radios[i].checked) {
-                        return self.radios.get(i).attr('value');
+                        return self.radios.eq(i).attr('value');
                     }
                 }
                 return null;
@@ -282,8 +282,8 @@
             _setValue: function(self, value) {
                 value = '' + value;
                 for (var i = 0; i < self.radios.length; i++) {
-                    if (self.radios.get(i).attr('value') == value) {
-                        self.radios.get(i).DOMNode.checked = true;
+                    if (self.radios.eq(i).attr('value') == value) {
+                        self.radios.eq(i).DOMNode.checked = true;
                         return;
                     }
                 }

@@ -370,6 +370,27 @@ describe('score.dom.form', function() {
             });
         });
 
+        it('should accept an array', function(done) {
+            loadScore(['oop', 'dom', 'dom.form'], function(score) {
+                try {
+                    var select = score.dom.form.field.select([
+                        [1, 'one'],
+                        [2, 'two'],
+                        [3, 'three'],
+                    ]);
+                    expect(select.node.DOMNode.nodeName.toLowerCase()).to.be('select');
+                    expect(select.node.children().length).to.be(3);
+                    select.node.children().forEach(function(node, index) {
+                        expect(node.DOMNode.nodeName.toLowerCase()).to.be('option');
+                        expect(node.attr('value')).to.be('' + (index + 1));
+                    });
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
+        });
+
         describe('#getValue()', function() {
 
             it('should always return the <select> value', function(done) {

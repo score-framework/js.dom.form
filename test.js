@@ -538,7 +538,25 @@ describe('score.dom.form', function() {
             });
         });
 
-        it('should accept an array of <input type="radio"> fields', function(done) {
+        it('should accept an array of <input type="radio"> fields with identical name attributes', function(done) {
+            loadScore(['oop', 'dom', 'dom.form'], function(score) {
+                try {
+                    var nodes = score.dom.fromString(
+                        '<input name="test" type="radio" value="one"></input>' +
+                        '<input name="test" type="radio" value="two"></input>' +
+                        '<input name="test" type="radio" value="three"></input>'
+                    );
+                    var radios = score.dom.form.field.radios(nodes);
+                    expect(radios.nodes).to.be(nodes);
+                    expect(radios.radios).to.be(nodes);
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
+        });
+
+        it('should accept an array of <input type="radio"> fields without name attributes', function(done) {
             loadScore(['oop', 'dom', 'dom.form'], function(score) {
                 try {
                     var nodes = score.dom.fromString(
@@ -549,6 +567,25 @@ describe('score.dom.form', function() {
                     var radios = score.dom.form.field.radios(nodes, 'test');
                     expect(radios.nodes).to.be(nodes);
                     expect(radios.radios).to.be(nodes);
+                    done();
+                } catch (e) {
+                    done(e);
+                }
+            });
+        });
+
+        it('should set name attributes of an array of <input type="radio"> fields without name attributes', function(done) {
+            loadScore(['oop', 'dom', 'dom.form'], function(score) {
+                try {
+                    var nodes = score.dom.fromString(
+                        '<input type="radio" value="one"></input>' +
+                        '<input type="radio" value="two"></input>' +
+                        '<input type="radio" value="three"></input>'
+                    );
+                    var radios = score.dom.form.field.radios(nodes, 'test');
+                    expect(radios.nodes.eq(0).attr('name')).to.be('test');
+                    expect(radios.nodes.eq(1).attr('name')).to.be('test');
+                    expect(radios.nodes.eq(2).attr('name')).to.be('test');
                     done();
                 } catch (e) {
                     done(e);

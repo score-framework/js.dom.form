@@ -147,7 +147,7 @@
         });
 
         Form.field.textarea = score.oop.Class({
-            __name__: 'InputField',
+            __name__: 'TextareaField',
             __parent__: Form.field,
 
             __init__: function(self, node) {
@@ -174,7 +174,7 @@
         });
 
         Form.field.select = score.oop.Class({
-            __name__: 'PasswordField',
+            __name__: 'SelectField',
             __parent__: Form.field,
 
             __init__: function(self, nodeOrOptions) {

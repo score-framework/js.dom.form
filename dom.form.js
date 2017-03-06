@@ -290,7 +290,7 @@
 
     });
 
-    Form.__version__ = '0.0.3';
+    Form.__version__ = '0.0.4';
 
     return Form;
 

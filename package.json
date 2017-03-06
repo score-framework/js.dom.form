@@ -1,6 +1,6 @@
 {
   "name": "score.dom.form",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Form handling for The SCORE Framework",
   "main": "dom.form.js",
   "directories": {

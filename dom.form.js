@@ -33,267 +33,263 @@
     /* globals module */
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['score.init', 'score.dom', 'score.oop'], factory);
+        define(['score.dom', 'score.oop'], factory);
     } else if (typeof module === 'object' && module.exports) {
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like environments that support module.exports,
         // like Node.
-        factory(require('score.init'), require('score.dom'), require('score.oop'));
+        module.exports = factory(require('score.dom'), require('score.oop'));
     } else {
         // Browser globals (root is window)
-        factory(root.score);
+        root.score.extend('dom.form', ['dom', 'oop'], factory);
     }
-})(this, function(score) {
+})(this, function(dom, oop) {
 
-    score.extend('dom.form', ['dom', 'oop'], function() {
+    var Form = oop.Class({
+        __name__: 'Form',
 
-        var Form = score.oop.Class({
-            __name__: 'Form',
+        __init__: function(self, fields) {
+            self.fields = fields;
+        },
 
-            __init__: function(self, fields) {
-                self.fields = fields;
-            },
-
-            getValue: function(self) {
-                var value = {};
-                for (var name in self.fields) {
-                    value[name] = self.fields[name].getValue();
-                }
-                return value;
-            },
-
-            setValue: function(self, value) {
-                for (var name in self.fields) {
-                    if (name in value) {
-                        continue;
-                    }
-                    throw new Error('No value for field ' + name);
-                }
-                for (var name in self.fields) {
-                    self.fields[name].setValue(value[name]);
-                }
+        getValue: function(self) {
+            var value = {};
+            for (var name in self.fields) {
+                value[name] = self.fields[name].getValue();
             }
+            return value;
+        },
 
-        });
-
-        Form.field = score.oop.Class({
-            __name__: 'FormField',
-            __events__: [
-                'change',  // triggered whenever the value changes
-                'input'    // triggered only when value is changed by user
-            ],
-
-            _input: function(self) {
-                self.trigger('change');
-                self.trigger('input');
-            },
-
-            getValue: function(self) {
-                return self._getValue();
-            },
-
-            setValue: function(self, value) {
-                self._setValue(value);
-                self.trigger('change');
-                return self;
-            },
-
-            _getValue: function(self) {
-                throw new Error('Abstract function ' + self.__class__.__name__ + '::_getValue() called');
-            },
-
-            _setValue: function(self, value) {
-                throw new Error('Abstract function ' + self.__class__.__name__ + '::_setValue() called');
+        setValue: function(self, value) {
+            for (var name in self.fields) {
+                if (name in value) {
+                    continue;
+                }
+                throw new Error('No value for field ' + name);
             }
-
-        });
-
-        Form.field.input = score.oop.Class({
-            __name__: 'InputField',
-            __parent__: Form.field,
-
-            __init__: function(self, node) {
-                if (!node) {
-                    node = score.dom.create('input');
-                } else {
-                    node = score.dom(node);
-                    if (node.DOMNode.nodeName.toLowerCase() != 'input') {
-                        throw new Error('Node argument must be an <input> element');
-                    }
-                }
-                self.node = self.input = node;
-                self.input.on('input', self._input);
-            },
-
-            _getValue: function(self, value) {
-                return self.input.DOMNode.value;
-            },
-
-            _setValue: function(self, value) {
-                self.input.DOMNode.value = value;
+            for (var name in self.fields) {
+                self.fields[name].setValue(value[name]);
             }
-
-        });
-
-        Form.field.password = score.oop.Class({
-            __name__: 'PasswordField',
-            __parent__: Form.field.input,
-
-            __init__: function(self, node) {
-                self.__super__(node);
-                self.node.attr('type', 'password');
-            }
-
-        });
-
-        Form.field.textarea = score.oop.Class({
-            __name__: 'TextareaField',
-            __parent__: Form.field,
-
-            __init__: function(self, node) {
-                if (!node) {
-                    node = score.dom.create('textarea');
-                } else {
-                    node = score.dom(node);
-                    if (node.DOMNode.nodeName.toLowerCase() != 'textarea') {
-                        throw new Error('Node argument must be an <textarea> element');
-                    }
-                }
-                self.node = self.textarea = node;
-                self.textarea.on('input', self._input);
-            },
-
-            _getValue: function(self, value) {
-                return self.textarea.DOMNode.value;
-            },
-
-            _setValue: function(self, value) {
-                self.textarea.DOMNode.value = value;
-            }
-
-        });
-
-        Form.field.select = score.oop.Class({
-            __name__: 'SelectField',
-            __parent__: Form.field,
-
-            __init__: function(self, nodeOrOptions) {
-                if (!nodeOrOptions) {
-                    throw new Error('First argument must either be a <select> element or an options list');
-                }
-                if (Array.isArray(nodeOrOptions) && !(nodeOrOptions instanceof score.dom)) {
-                    self.node = self.select = score.dom.create('select');
-                    for (var i = 0; i < nodeOrOptions.length; i++) {
-                        self.select.append(
-                            score.dom.create('option')
-                            .attr('value', nodeOrOptions[i][0])
-                            .text(nodeOrOptions[i][1]));
-                    }
-                } else {
-                    self.node = self.select = score.dom(nodeOrOptions);
-                    if (self.select.DOMNode.nodeName.toLowerCase() != 'select') {
-                        throw new Error('First argument must either be a <select> element or an options list');
-                    }
-                }
-                self.select.on('change', self._input);
-            },
-
-            _getValue: function(self) {
-                return self.select.DOMNode.value;
-            },
-
-            _setValue: function(self, value) {
-                value = '' + value;
-                var found = false;
-                self.select.children('option').forEach(function(option) {
-                    if (option.attr('value') === value) {
-                        found = true;
-                    }
-                });
-                if (!found) {
-                    throw new Error('No such value "' + value + '"');
-                }
-                self.select.DOMNode.value = value;
-            }
-
-        });
-
-        Form.field.radios = score.oop.Class({
-            __name__: 'RadioListField',
-            __parent__: Form.field,
-
-            __init__: function(self, nodesOrValues, name) {
-                if (!nodesOrValues) {
-                    throw new Error('First argument must either be a list of <input type="radio"> elements or a list of values');
-                }
-                if (typeof nodesOrValues === 'string') {
-                    var tmp = nodesOrValues;
-                    nodesOrValues = name;
-                    name = tmp;
-                }
-                if (Array.isArray(nodesOrValues) && nodesOrValues.length && typeof nodesOrValues[0] == 'string') {
-                    self.nodes = self.radios = score.dom();
-                    if (!name) {
-                        throw new Error('Second argument must contain a name if first argument is a list of values');
-                    }
-                    for (var i = 0; i < nodesOrValues.length; i++) {
-                        self.nodes.push(
-                            score.dom.create('input')
-                            .attr('type', 'radio')
-                            .attr('name', name)
-                            .attr('value', nodesOrValues[i])
-                            .DOMNode);
-                    }
-                } else {
-                    self.nodes = self.radios = score.dom(nodesOrValues);
-                    if (self.nodes.length) {
-                        self.radios.forEach(function(node) {
-                            if (node.DOMNode.nodeName.toLowerCase() != 'input' || node.attr('type').toLowerCase() != 'radio') {
-                                throw new Error('First argument must either be a list of <input type="radio"> elements or a list of values');
-                            }
-                        });
-                        var nameAttr = self.nodes.first.attr('name');
-                        if (!nameAttr) {
-                            if (!name) {
-                                throw new Error('Second argument must contain a name if nodes don\'t have a name attribute');
-                            }
-                            self.nodes.attr('name', name);
-                        } else {
-                            self.radios.forEach(function(node) {
-                                if (node.attr('name') != nameAttr) {
-                                    throw new Error('All nodes must have the same name attribute');
-                                }
-                            });
-                        }
-                    }
-                }
-                self.radios.on('change', self._input);
-            },
-
-            _getValue: function(self) {
-                for (var i = 0; i < self.radios.length; i++) {
-                    if (self.radios[i].checked) {
-                        return self.radios.eq(i).attr('value');
-                    }
-                }
-                return null;
-            },
-
-            _setValue: function(self, value) {
-                value = '' + value;
-                for (var i = 0; i < self.radios.length; i++) {
-                    if (self.radios.eq(i).attr('value') == value) {
-                        self.radios.eq(i).DOMNode.checked = true;
-                        return;
-                    }
-                }
-                throw new Error('No such value "' + value + '"');
-            }
-
-        });
-
-        return Form;
+        }
 
     });
+
+    Form.field = oop.Class({
+        __name__: 'FormField',
+        __events__: [
+            'change',  // triggered whenever the value changes
+            'input'    // triggered only when value is changed by user
+        ],
+
+        _input: function(self) {
+            self.trigger('change');
+            self.trigger('input');
+        },
+
+        getValue: function(self) {
+            return self._getValue();
+        },
+
+        setValue: function(self, value) {
+            self._setValue(value);
+            self.trigger('change');
+            return self;
+        },
+
+        _getValue: function(self) {
+            throw new Error('Abstract function ' + self.__class__.__name__ + '::_getValue() called');
+        },
+
+        _setValue: function(self, value) {
+            throw new Error('Abstract function ' + self.__class__.__name__ + '::_setValue() called');
+        }
+
+    });
+
+    Form.field.input = oop.Class({
+        __name__: 'InputField',
+        __parent__: Form.field,
+
+        __init__: function(self, node) {
+            if (!node) {
+                node = dom.create('input');
+            } else {
+                node = dom(node);
+                if (node.DOMNode.nodeName.toLowerCase() != 'input') {
+                    throw new Error('Node argument must be an <input> element');
+                }
+            }
+            self.node = self.input = node;
+            self.input.on('input', self._input);
+        },
+
+        _getValue: function(self, value) {
+            return self.input.DOMNode.value;
+        },
+
+        _setValue: function(self, value) {
+            self.input.DOMNode.value = value;
+        }
+
+    });
+
+    Form.field.password = oop.Class({
+        __name__: 'PasswordField',
+        __parent__: Form.field.input,
+
+        __init__: function(self, node) {
+            self.__super__(node);
+            self.node.attr('type', 'password');
+        }
+
+    });
+
+    Form.field.textarea = oop.Class({
+        __name__: 'TextareaField',
+        __parent__: Form.field,
+
+        __init__: function(self, node) {
+            if (!node) {
+                node = dom.create('textarea');
+            } else {
+                node = dom(node);
+                if (node.DOMNode.nodeName.toLowerCase() != 'textarea') {
+                    throw new Error('Node argument must be an <textarea> element');
+                }
+            }
+            self.node = self.textarea = node;
+            self.textarea.on('input', self._input);
+        },
+
+        _getValue: function(self, value) {
+            return self.textarea.DOMNode.value;
+        },
+
+        _setValue: function(self, value) {
+            self.textarea.DOMNode.value = value;
+        }
+
+    });
+
+    Form.field.select = oop.Class({
+        __name__: 'SelectField',
+        __parent__: Form.field,
+
+        __init__: function(self, nodeOrOptions) {
+            if (!nodeOrOptions) {
+                throw new Error('First argument must either be a <select> element or an options list');
+            }
+            if (Array.isArray(nodeOrOptions) && !(nodeOrOptions instanceof dom)) {
+                self.node = self.select = dom.create('select');
+                for (var i = 0; i < nodeOrOptions.length; i++) {
+                    self.select.append(
+                        dom.create('option')
+                        .attr('value', nodeOrOptions[i][0])
+                        .text(nodeOrOptions[i][1]));
+                }
+            } else {
+                self.node = self.select = dom(nodeOrOptions);
+                if (self.select.DOMNode.nodeName.toLowerCase() != 'select') {
+                    throw new Error('First argument must either be a <select> element or an options list');
+                }
+            }
+            self.select.on('change', self._input);
+        },
+
+        _getValue: function(self) {
+            return self.select.DOMNode.value;
+        },
+
+        _setValue: function(self, value) {
+            value = '' + value;
+            var found = false;
+            self.select.children('option').forEach(function(option) {
+                if (option.attr('value') === value) {
+                    found = true;
+                }
+            });
+            if (!found) {
+                throw new Error('No such value "' + value + '"');
+            }
+            self.select.DOMNode.value = value;
+        }
+
+    });
+
+    Form.field.radios = oop.Class({
+        __name__: 'RadioListField',
+        __parent__: Form.field,
+
+        __init__: function(self, nodesOrValues, name) {
+            if (!nodesOrValues) {
+                throw new Error('First argument must either be a list of <input type="radio"> elements or a list of values');
+            }
+            if (typeof nodesOrValues === 'string') {
+                var tmp = nodesOrValues;
+                nodesOrValues = name;
+                name = tmp;
+            }
+            if (Array.isArray(nodesOrValues) && nodesOrValues.length && typeof nodesOrValues[0] == 'string') {
+                self.nodes = self.radios = dom();
+                if (!name) {
+                    throw new Error('Second argument must contain a name if first argument is a list of values');
+                }
+                for (var i = 0; i < nodesOrValues.length; i++) {
+                    self.nodes.push(
+                        dom.create('input')
+                        .attr('type', 'radio')
+                        .attr('name', name)
+                        .attr('value', nodesOrValues[i])
+                        .DOMNode);
+                }
+            } else {
+                self.nodes = self.radios = dom(nodesOrValues);
+                if (self.nodes.length) {
+                    self.radios.forEach(function(node) {
+                        if (node.DOMNode.nodeName.toLowerCase() != 'input' || node.attr('type').toLowerCase() != 'radio') {
+                            throw new Error('First argument must either be a list of <input type="radio"> elements or a list of values');
+                        }
+                    });
+                    var nameAttr = self.nodes.first.attr('name');
+                    if (!nameAttr) {
+                        if (!name) {
+                            throw new Error('Second argument must contain a name if nodes don\'t have a name attribute');
+                        }
+                        self.nodes.attr('name', name);
+                    } else {
+                        self.radios.forEach(function(node) {
+                            if (node.attr('name') != nameAttr) {
+                                throw new Error('All nodes must have the same name attribute');
+                            }
+                        });
+                    }
+                }
+            }
+            self.radios.on('change', self._input);
+        },
+
+        _getValue: function(self) {
+            for (var i = 0; i < self.radios.length; i++) {
+                if (self.radios[i].checked) {
+                    return self.radios.eq(i).attr('value');
+                }
+            }
+            return null;
+        },
+
+        _setValue: function(self, value) {
+            value = '' + value;
+            for (var i = 0; i < self.radios.length; i++) {
+                if (self.radios.eq(i).attr('value') == value) {
+                    self.radios.eq(i).DOMNode.checked = true;
+                    return;
+                }
+            }
+            throw new Error('No such value "' + value + '"');
+        }
+
+    });
+
+    return Form;
 
 });
